@@ -72,7 +72,7 @@ def main():
 
     user_inputs = [
         {
-            "user_request": "Please schedule a calendar event for  lautaro@pampa.ai tomorrow from 10:00 PM to 11:00 PM Argentina time. The event is a meeting combined with team building activities."
+            "user_request": "Please schedule a calendar event for tomorrow from 10:00 PM to 11:00 PM Argentina time. The event is a meeting combined with team building activities."
         },
     ]
 
