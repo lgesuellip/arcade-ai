@@ -18,7 +18,7 @@ user_id = os.getenv("ARCADE_USER_ID")
 
 manager = CrewAIToolManager(arcade_client, user_id)
 # Retrieve the tools from the specified toolkit
-tools = manager.get_tools(toolkit=["google"])
+tools = manager.get_tools(toolkits=["google"])
 
 
 def main_agent(llm, tools) -> Agent:
