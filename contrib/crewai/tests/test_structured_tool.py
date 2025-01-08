@@ -82,8 +82,11 @@ def test_structured_tool_in_crew():
         tasks=[addition_task],
     )
 
-    crew.kickoff()
-
-
-if __name__ == "__main__":
-    test_structured_tool_in_crew()
+    # Assert crew structure
+    assert len(crew.agents) == 1
+    assert len(crew.tasks) == 1
+    assert crew.agents[0] == calculator_agent
+    assert crew.tasks[0] == addition_task
+    assert crew.tasks[0].agent == calculator_agent
+    assert len(crew.agents[0].tools) == 1
+    assert isinstance(crew.agents[0].tools[0], StructuredTool)

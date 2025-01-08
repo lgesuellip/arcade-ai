@@ -1,5 +1,6 @@
 import logging
 import os
+from datetime import datetime
 from textwrap import dedent
 
 from arcadepy import Arcade
@@ -50,6 +51,9 @@ def task(agent):
         Your responses should be:
         - Friendly and approachable, using a warm tone
 
+        # Context
+        The attendees are {attendees}
+
         # User Request
         Complete the following request using the tools at your disposal: {user_request}
         """),
@@ -72,7 +76,8 @@ def main():
 
     user_inputs = [
         {
-            "user_request": "Please schedule a calendar event for tomorrow from 10:00 PM to 11:00 PM Argentina time. The event is a meeting combined with team building activities."
+            "attendees": "",
+            "user_request": f"Please schedule a calendar event for {datetime.now().strftime('%Y-%m-%d')} from 10:00 PM to 11:00 PM Argentina time. The event is a meeting combined with team building activities.",
         },
     ]
 

@@ -9,9 +9,7 @@ from crewai_arcade.manager import CrewAIToolManager
 @pytest.fixture
 def manager():
     """Fixture to create a CrewAIToolManager instance with mocked client and user_id."""
-    manager = CrewAIToolManager()
-    manager.client = MagicMock()
-    manager.user_id = "test_user"
+    manager = CrewAIToolManager(client=MagicMock(), user_id="test_user")
     return manager
 
 

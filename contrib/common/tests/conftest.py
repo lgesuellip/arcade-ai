@@ -89,7 +89,7 @@ def mock_arcade() -> Mock:
     return mock
 
 
-class TestManager(BaseArcadeManager):
+class MockManager(BaseArcadeManager):
     """Test implementation of BaseArcadeManager for testing purposes."""
 
     def __init__(self, client: Optional[Arcade] = None, user_id: Optional[str] = None) -> None:
@@ -113,13 +113,13 @@ class TestManager(BaseArcadeManager):
 
 
 @pytest.fixture
-def manager(mock_arcade: Mock) -> TestManager:
+def manager(mock_arcade: Mock) -> MockManager:
     """Creates a TestManager instance with a mock Arcade client.
 
     Args:
         mock_arcade: The mock Arcade client fixture
 
     Returns:
-        TestManager: Configured test manager instance
+        MockManager: Configured test manager instance
     """
-    return TestManager(client=mock_arcade)
+    return MockManager(client=mock_arcade)
