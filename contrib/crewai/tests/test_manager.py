@@ -15,16 +15,18 @@ def manager():
 
 @patch("crewai_arcade.manager.CrewAIToolManager.requires_auth")
 @patch("crewai_arcade.manager.CrewAIToolManager.authorize")
+@patch("crewai_arcade.manager.CrewAIToolManager.wait_for_completion")
 @patch("crewai_arcade.manager.CrewAIToolManager.is_authorized")
 def test_create_tool_function_success(
-    mock_is_authorized, mock_authorize, mock_requires_auth, manager
+    mock_is_authorized, mock_authorize, mock_wait_for_completion, mock_requires_auth, manager
 ):
     """Test that the tool function executes successfully when authorized."""
     mock_requires_auth.return_value = True
     mock_authorize.return_value = MagicMock(
-        authorization_id="auth_id", authorization_url="http://auth.url"
+        authorization_id="auth_id", authorization_url="http://auth.url", status="completed"
     )
     mock_is_authorized.return_value = True
+    mock_wait_for_completion.return_value = mock_authorize
     manager.client.tools.execute.return_value = MagicMock(
         success=True, output=MagicMock(value="result")
     )
@@ -39,31 +41,38 @@ def test_create_tool_function_success(
 @patch("crewai_arcade.manager.CrewAIToolManager.requires_auth")
 @patch("crewai_arcade.manager.CrewAIToolManager.authorize")
 @patch("crewai_arcade.manager.CrewAIToolManager.is_authorized")
+@patch("crewai_arcade.manager.CrewAIToolManager.wait_for_completion")
 def test_create_tool_function_unauthorized(
-    mock_is_authorized, mock_authorize, mock_requires_auth, manager
+    mock_wait_for_completion, mock_is_authorized, mock_authorize, mock_requires_auth, manager
 ):
     """Test that the tool function returns a ToolExecutionError when unauthorized."""
     mock_requires_auth.return_value = True
     mock_is_authorized.return_value = False
 
+    mock_authorize.return_value = MagicMock(
+        authorization_id="auth_id", authorization_url="http://auth.url", status="pending"
+    )
+    mock_wait_for_completion.return_value = mock_authorize
+
     tool_function = manager.create_tool_function("test_tool")
     result = tool_function()
-    print(result)
     assert isinstance(result, ToolExecutionError)
 
 
 @patch("crewai_arcade.manager.CrewAIToolManager.requires_auth")
 @patch("crewai_arcade.manager.CrewAIToolManager.authorize")
 @patch("crewai_arcade.manager.CrewAIToolManager.is_authorized")
+@patch("crewai_arcade.manager.CrewAIToolManager.wait_for_completion")
 def test_create_tool_function_execution_failure(
-    mock_is_authorized, mock_authorize, mock_requires_auth, manager
+    mock_wait_for_completion, mock_is_authorized, mock_authorize, mock_requires_auth, manager
 ):
     """Test that the tool function returns a ToolExecutionError on execution failure."""
     mock_requires_auth.return_value = True
     mock_authorize.return_value = MagicMock(
-        authorization_id="auth_id", authorization_url="http://auth.url"
+        authorization_id="auth_id", authorization_url="http://auth.url", status="completed"
     )
     mock_is_authorized.return_value = True
+    mock_wait_for_completion.return_value = mock_authorize
     manager.client.tools.execute.return_value = MagicMock(success=False, error="error")
 
     tool_function = manager.create_tool_function("test_tool")

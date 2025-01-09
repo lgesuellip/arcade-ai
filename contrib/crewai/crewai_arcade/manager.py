@@ -28,7 +28,12 @@ class CrewAIToolManager(BaseArcadeManager):
                     return ToolExecutionError(
                         f"Authorization failed for {tool_name}: No authorization ID received"
                     )
-                if not self.is_authorized(auth_response.authorization_id):
+                # Wait for authorization completion with timeout
+                auth_response = self.wait_for_completion(
+                    auth_response,
+                )
+
+                if auth_response.status != "completed":
                     return ToolExecutionError(
                         f"Authorization failed for {tool_name}. "
                         f"URL: {auth_response.authorization_url}"
