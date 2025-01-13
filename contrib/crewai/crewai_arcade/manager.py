@@ -1,6 +1,6 @@
 from typing import Any, Callable
 
-from arcadepy._types import NOT_GIVEN
+from arcadepy import Arcade
 from arcadepy.types.shared import ToolDefinition
 from common_arcade.exceptions import ToolExecutionError
 from common_arcade.manager import BaseArcadeManager
@@ -10,20 +10,47 @@ from crewai_arcade.structured import StructuredTool
 
 
 class CrewAIToolManager(BaseArcadeManager):
-    """CrewAI-specific implementation of the BaseArcadeManager."""
+    """CrewAI-specific implementation of the BaseArcadeManager.
+
+    This manager requires a user_id during initialization as it's needed for tool authorization.
+    """
+
+    def __init__(
+        self,
+        client: Arcade,
+        user_id: str,
+        **kwargs: Any,
+    ) -> None:
+        """Initialize the CrewAIToolManager.
+
+        Args:
+            client: Arcade client instance.
+            user_id: User ID required for tool authorization.
+            **kwargs: Additional keyword arguments.
+
+        Raises:
+            ValueError: If user_id is empty or None.
+        """
+        if not user_id:
+            raise ValueError("user_id is required for CrewAIToolManager")
+        super().__init__(client=client, user_id=user_id, **kwargs)
 
     def create_tool_function(self, tool_name: str, **kwargs: Any) -> Callable[..., Any]:
-        """Overrides BaseArcadeManager.create_tool_function."""
+        """Creates a function wrapper for an Arcade tool.
+
+        Args:
+            tool_name: The name of the tool to create a function for.
+            **kwargs: Additional keyword arguments for tool configuration.
+
+        Returns:
+            A callable function that executes the tool.
+        """
 
         def tool_function(*args: Any, **kwargs: Any) -> Any:
             # Handle authorization if required
             if self.requires_auth(tool_name):
-                if not self.user_id:
-                    error_message = f"Authorization required for {tool_name}."
-                    return ToolExecutionError(error_message)
-
                 # Get authorization status
-                auth_response = self.authorize(tool_name, self.user_id)
+                auth_response = self.authorize(tool_name, self.user_id)  # type: ignore[arg-type]
                 if not auth_response.authorization_id:
                     return ToolExecutionError(
                         f"Authorization failed for {tool_name}: No authorization ID received"
@@ -41,7 +68,9 @@ class CrewAIToolManager(BaseArcadeManager):
 
             # Tool execution
             response = self.client.tools.execute(
-                tool_name=tool_name, inputs=kwargs, user_id=self.user_id or NOT_GIVEN
+                tool_name=tool_name,
+                inputs=kwargs,
+                user_id=self.user_id,  # type: ignore[arg-type]
             )
             if response.success:
                 if response.output is None:
