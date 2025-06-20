@@ -1,0 +1,11 @@
+[[worker]]
+
+[worker.config]
+id = "zendesk-worker"
+enabled = true
+timeout = 30
+retries = 3
+secret = ""
+
+[worker.local_source]
+packages = ["./"]
